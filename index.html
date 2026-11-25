@@ -20,8 +20,7 @@ body{margin:0;font-family:Inter,system-ui,sans-serif;color:var(--text);min-heigh
   background:linear-gradient(180deg,#bfe8fb 0%,#def3fd 32%,#f3faff 70%,#f7fbf2 100%);background-attachment:fixed}
 a{color:var(--blue)}
 .card,header{background:var(--card);border:1px solid var(--line);box-shadow:inset 0 1px 0 #fff,0 10px 30px rgba(15,23,42,.06);backdrop-filter:blur(20px) saturate(150%);-webkit-backdrop-filter:blur(20px) saturate(150%)}
-header{display:flex;align-items:center;gap:10px;padding:8px 10px 8px 10px;position:sticky;top:12px;z-index:5;margin:12px auto 0;max-width:980px;border-radius:22px}
-header .logo{width:34px;height:34px;border-radius:10px;background:url(sdk/HelloFlippy/icon.png) center/cover}
+header{display:flex;align-items:center;gap:10px;padding:8px 10px 8px 16px;position:sticky;top:12px;z-index:5;margin:12px auto 0;max-width:980px;border-radius:22px}
 header .brand{font:400 15px Bungee,Inter,sans-serif;margin-right:8px}
 nav{display:flex;gap:4px;flex:1}
 nav a{padding:7px 13px;border-radius:14px;font-size:14px;font-weight:600;text-decoration:none;color:var(--mute)}
@@ -172,13 +171,13 @@ ol.plain li{margin-bottom:6px}
 header .brand{background:linear-gradient(110deg,#17204a 40%,#4cc3f5 50%,#17204a 60%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 5s linear infinite}
 @keyframes shine{from{background-position:120% 0}to{background-position:-120% 0}}
 button.big{transition:transform .2s cubic-bezier(.2,.7,.2,1)}
-#sparks{position:fixed;inset:0;pointer-events:none;z-index:50}
+#sparks{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:50} /* CSS size = the window; the pixel buffer is bigger on scaled screens */
 @media (prefers-reduced-motion:reduce){.aurora i,.enter .card,.split .ch,header .brand{animation:none!important}.split .ch{opacity:1;transform:none}}
 </style>
 </head>
 <body>
 <div class="aurora"><i></i><i></i><i></i></div><canvas id="sparks"></canvas>
-<header><div class="logo"></div><span class="brand">FlippyOS</span><nav><a href="#" id="nav-apps" class="on">My apps</a><a href="#guide" id="nav-guide">Guide</a></nav><span class="me" id="me"></span><button class="ghost small" id="out" hidden>Sign out</button></header>
+<header><span class="brand">FlippyOS</span><nav><a href="#" id="nav-apps" class="on">My apps</a><a href="#guide" id="nav-guide">Guide</a></nav><span class="me" id="me"></span><button class="ghost small" id="out" hidden>Sign out</button></header>
 <main id="main"></main>
 <section id="guide" hidden>
   <div class="card">
