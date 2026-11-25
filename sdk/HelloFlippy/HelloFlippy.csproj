@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Build: dotnet build -c Release -p:GamePath="C:\Program Files (x86)\Steam\steamapps\common\Flipping is Hard"
+       Needs BepInEx 6 IL2CPP installed in the game and started once (it makes BepInEx\interop). -->
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <AssemblyName>HelloFlippy</AssemblyName>
+    <LangVersion>latest</LangVersion>
+    <GamePath Condition="'$(GamePath)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Flipping is Hard</GamePath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="BepInEx.Core"><HintPath>$(GamePath)\BepInEx\core\BepInEx.Core.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="BepInEx.Unity.IL2CPP"><HintPath>$(GamePath)\BepInEx\core\BepInEx.Unity.IL2CPP.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Il2CppInterop.Runtime"><HintPath>$(GamePath)\BepInEx\core\Il2CppInterop.Runtime.dll</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <!-- the app's page and icon live inside the .dll (the App Store installs one file) -->
+    <EmbeddedResource Include="app.html" LogicalName="app.html" />
+    <EmbeddedResource Include="icon.png" LogicalName="icon.png" />
+    <Compile Include="..\FlippyOSLink.cs" />
+  </ItemGroup>
+</Project>

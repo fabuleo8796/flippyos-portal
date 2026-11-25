@@ -9,70 +9,193 @@
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.50.0/dist/umd/supabase.js"></script>
 <style>
-:root{--bg:#0d0b1a;--card:rgba(255,255,255,.06);--line:rgba(255,255,255,.12);--text:#f4f2ff;--mute:#a9a3c7;--accent:#8b5cf6;--accent2:#facc15;--ok:#34d399;--bad:#f87171;--warn:#fbbf24}
+/* liquid glass (iOS 26): frosted panels with bright edges over a vivid gradient */
+:root{--glass:rgba(255,255,255,.16);--glass2:rgba(255,255,255,.26);--edge:rgba(255,255,255,.42);--text:#fff;--mute:rgba(255,255,255,.74);
+  --blue:#0b45e0;--ok:#30d158;--bad:#ff453a;--warn:#ffd60a;--shadow:0 12px 36px rgba(40,10,90,.25)}
 *{box-sizing:border-box}
-body{margin:0;font-family:Inter,system-ui,sans-serif;color:var(--text);background:radial-gradient(1200px 600px at 15% -10%,#3b1d7a,transparent),radial-gradient(900px 500px at 100% 0,#5b2a86,transparent),var(--bg);min-height:100vh}
-a{color:var(--accent2)}
-header{display:flex;align-items:center;gap:12px;padding:18px 24px;border-bottom:1px solid var(--line);backdrop-filter:blur(10px);position:sticky;top:0;background:rgba(13,11,26,.7);z-index:5}
-header .logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#ec4899);display:grid;place-items:center;font-weight:800}
-header h1{font-size:17px;margin:0;flex:1}
+body{margin:0;font-family:Inter,system-ui,sans-serif;color:var(--text);min-height:100vh;
+  background:radial-gradient(70% 60% at 0% 0%,#8fc6f2 0%,transparent 60%),radial-gradient(60% 55% at 100% 5%,#c48ad6 0%,transparent 60%),
+  radial-gradient(70% 70% at 35% 65%,#4b4fc8 0%,transparent 60%),radial-gradient(80% 70% at 100% 100%,#ef8d7c 0%,transparent 60%),#7a4cb8;background-attachment:fixed}
+a{color:#fff;text-decoration-color:rgba(255,255,255,.5)}
+.card,header,.app,.tile-k{background:linear-gradient(180deg,var(--glass2),var(--glass));border:1px solid var(--edge);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.6),inset 0 -1px 0 rgba(255,255,255,.12),var(--shadow);backdrop-filter:blur(26px) saturate(170%);-webkit-backdrop-filter:blur(26px) saturate(170%)}
+header{display:flex;align-items:center;gap:12px;padding:10px 14px 10px 12px;position:sticky;top:12px;z-index:5;margin:12px auto 0;max-width:1040px;border-radius:26px}
+header .logo{width:38px;height:38px;border-radius:12px;background:url(sdk/HelloFlippy/icon.png) center/cover;box-shadow:0 3px 10px rgba(40,10,90,.3)}
+header h1{font-size:16px;margin:0;font-weight:700}
+nav{display:flex;gap:6px;margin-left:10px;flex:1}
+nav a{padding:7px 14px;border-radius:16px;font-size:14px;font-weight:600;text-decoration:none;color:var(--mute)}
+nav a.on{background:rgba(255,255,255,.28);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}
 header .me{color:var(--mute);font-size:13px}
-main{max-width:1040px;margin:0 auto;padding:24px 16px 60px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:16px}
-h2{font-size:20px;margin:0 0 12px}
-h3{font-size:15px;margin:18px 0 8px}
-p,li{color:var(--mute);line-height:1.55;font-size:14px}
-label{display:block;font-size:12px;font-weight:600;color:var(--mute);margin:12px 0 5px;text-transform:uppercase;letter-spacing:.04em}
-input,textarea,select{width:100%;background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:10px;color:var(--text);font:inherit;font-size:14px;padding:10px 12px}
+main,#guide{max-width:1040px;margin:0 auto;padding:20px 16px 60px}
+.card{border-radius:30px;padding:22px;margin-bottom:16px}
+h2{font-size:22px;margin:0 0 12px;letter-spacing:-.01em}
+h3{font-size:16px;margin:20px 0 8px}
+p,li{color:var(--mute);line-height:1.6;font-size:14.5px}
+b,strong{color:#fff}
+label{display:block;font-size:12px;font-weight:700;color:var(--mute);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.05em}
+input,textarea,select{width:100%;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.35);border-radius:16px;color:#fff;font:inherit;font-size:14px;padding:11px 14px;box-shadow:inset 0 1px 3px rgba(40,10,90,.18)}
+input::placeholder,textarea::placeholder{color:rgba(255,255,255,.5)}
+select option{color:#000}
+input[type=file]{padding:9px}
+input[type=checkbox]{width:auto;box-shadow:none}
 textarea{min-height:110px;resize:vertical;font-family:Consolas,ui-monospace,monospace;font-size:13px}
-input:focus,textarea:focus{outline:2px solid var(--accent);border-color:transparent}
-.hint{font-size:12px;color:var(--mute);margin-top:4px}
-button{font:600 14px Inter,sans-serif;border:0;border-radius:11px;padding:10px 16px;cursor:pointer;background:var(--accent);color:#fff}
-button.ghost{background:rgba(255,255,255,.1)}
-button.ok{background:var(--ok);color:#06281c}
-button.bad{background:var(--bad);color:#2a0606}
+input:focus,textarea:focus,select:focus{outline:2px solid rgba(255,255,255,.8);outline-offset:1px}
+input:disabled,select:disabled{opacity:.6}
+.hint{font-size:12.5px;color:var(--mute);margin-top:5px}
+button{font:600 14px Inter,sans-serif;border:1px solid rgba(150,175,255,.6);border-radius:22px;padding:10px 20px;cursor:pointer;background:var(--blue);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 6px 16px rgba(11,69,224,.35)}
+button.ghost{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.5);box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}
+button.ok{background:#1fa64a;border-color:rgba(160,255,190,.6);box-shadow:inset 0 1px 0 rgba(255,255,255,.35)}
+button.bad{background:rgba(255,69,58,.85);border-color:rgba(255,170,160,.6);box-shadow:inset 0 1px 0 rgba(255,255,255,.35)}
+button.small{padding:6px 12px;font-size:12.5px}
 button:disabled{opacity:.5;cursor:default}
 .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-.grid{display:grid;grid-template-columns:1fr 320px;gap:16px}
-@media (max-width:820px){.grid{grid-template-columns:1fr}}
-.apps{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
-.app{display:flex;gap:12px;align-items:center;padding:12px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid var(--line);cursor:pointer}
-.app:hover{border-color:var(--accent)}
-.ic{width:52px;height:52px;border-radius:13px;background:#3a3550 center/cover;flex:none;display:grid;place-items:center;font-weight:800;font-size:22px}
-.chip{display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:8px;letter-spacing:.03em}
-.chip.pending{background:rgba(251,191,36,.18);color:var(--warn)}
-.chip.approved{background:rgba(52,211,153,.18);color:var(--ok)}
-.chip.rejected{background:rgba(248,113,113,.18);color:var(--bad)}
-.chip.none{background:rgba(255,255,255,.1);color:var(--mute)}
-.err{color:var(--bad);font-size:13px;margin-top:8px;white-space:pre-wrap}
-.okmsg{color:var(--ok);font-size:13px;margin-top:8px}
-.tabs{display:flex;gap:6px;margin-bottom:14px}
-.tabs button{background:rgba(255,255,255,.08)}
-.tabs button.on{background:var(--accent)}
-/* previews */
-.phone{border-radius:22px;padding:18px;background:linear-gradient(160deg,#1e6fd9,#5b2a86 70%);display:grid;grid-template-columns:repeat(4,1fr);gap:14px 6px;justify-items:center}
+.grid{display:grid;grid-template-columns:1fr 330px;gap:16px}
+@media (max-width:820px){.grid{grid-template-columns:1fr}nav{margin-left:0}header h1{display:none}}
+.apps{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.app{display:flex;gap:12px;align-items:center;padding:12px;border-radius:24px;cursor:pointer}
+.app:hover{background:linear-gradient(180deg,rgba(255,255,255,.34),rgba(255,255,255,.2))}
+.ic{width:54px;height:54px;border-radius:14px;background:rgba(255,255,255,.3) center/cover;flex:none;display:grid;place-items:center;font-weight:800;font-size:22px;box-shadow:0 4px 12px rgba(40,10,90,.3)}
+.chip{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:10px;letter-spacing:.03em;margin-top:4px;border:1px solid rgba(255,255,255,.3)}
+.chip.pending{background:rgba(255,214,10,.28)}
+.chip.approved,.chip.clean{background:rgba(48,209,88,.32)}
+.chip.rejected,.chip.flagged{background:rgba(255,69,58,.4)}
+.chip.none,.chip.scanning,.chip.error{background:rgba(255,255,255,.18)}
+.err{color:#ffd1cc;font-size:13px;margin-top:10px;white-space:pre-wrap}
+.okmsg{color:#c9ffd8;font-size:13px;margin-top:10px}
+.phone{border-radius:26px;padding:18px;background:linear-gradient(160deg,#1e6fd9,#5b2a86 70%);display:grid;grid-template-columns:repeat(4,1fr);gap:14px 6px;justify-items:center;border:1px solid var(--edge)}
 .tile{display:flex;flex-direction:column;align-items:center;gap:5px;width:64px}
 .tile .i{width:56px;height:56px;border-radius:13px;background:#fff center/cover;box-shadow:0 4px 10px rgba(0,0,0,.25)}
 .tile .i.ghost{background:rgba(255,255,255,.25)}
 .tile span{font-size:11px;color:#fff;text-shadow:0 1px 4px rgba(0,0,40,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:64px}
-.storerow{margin-top:12px;background:#fff;color:#000;border-radius:14px;padding:10px;display:flex;gap:10px;align-items:center}
-.storerow .i{width:44px;height:44px;border-radius:11px;background:#e5e5ea center/cover;flex:none}
+.storerow{margin-top:12px;border-radius:20px;padding:10px;display:flex;gap:10px;align-items:center;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.4)}
+.storerow .i{width:44px;height:44px;border-radius:11px;background:rgba(255,255,255,.3) center/cover;flex:none}
 .storerow b{display:block;font-size:14px}
-.storerow small{color:#8a8a8e;font-size:12px}
-.storerow .get{margin-left:auto;background:#e9e9ee;color:#0a84ff;border-radius:14px;padding:5px 14px;font-weight:700;font-size:12px}
-.md{background:#fff;color:#1c1c1e;border-radius:14px;padding:12px;font-size:13px;line-height:19px}
-.md h4{margin:8px 0 4px}.md p{margin:0 0 6px;color:#1c1c1e}.md li{color:#1c1c1e}.md ol,.md ul{margin:0 0 6px 18px;padding:0}
-.md code{background:#f2f2f7;padding:1px 4px;border-radius:4px;font-family:Consolas,monospace}
+.storerow small{color:var(--mute);font-size:12px}
+.storerow .get{margin-left:auto;background:rgba(255,255,255,.25);border:1px solid rgba(255,255,255,.5);border-radius:14px;padding:5px 14px;font-weight:700;font-size:12px}
+.md{border-radius:20px;padding:12px;font-size:13px;line-height:19px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3)}
+.md h4{margin:10px 0 5px}.md p{margin:0 0 6px;color:#fff}
+.md ol,.md ul{margin:0 0 6px;padding:0;list-style:none;counter-reset:n}
+.md li{color:#fff;margin:4px 0;padding:6px 10px 6px 34px;position:relative;border-radius:14px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);font-size:13px;line-height:19px}
+.md ol li{counter-increment:n}
+.md ol li::before{content:counter(n);position:absolute;left:8px;top:6px;width:19px;height:19px;border-radius:50%;background:var(--blue);font:700 11px/19px Inter,sans-serif;text-align:center}
+.md ul li::before{content:"";position:absolute;left:13px;top:13px;width:7px;height:7px;border-radius:50%;background:#fff}
+code{background:rgba(20,0,60,.3);padding:1px 6px;border-radius:6px;font-family:Consolas,ui-monospace,monospace;font-size:12.5px;color:#fff}
+pre{background:rgba(15,5,45,.55);border:1px solid rgba(255,255,255,.2);border-radius:18px;padding:14px 16px;overflow-x:auto;font:12.5px/1.6 Consolas,ui-monospace,monospace;color:#e9e4ff;margin:8px 0 4px}
+pre code{background:none;padding:0;font-size:12.5px}
 table{width:100%;border-collapse:collapse;font-size:13px}
-td,th{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top}
-th{color:var(--mute);font-weight:600;font-size:12px}
-code.h{font-size:11px;color:var(--mute);word-break:break-all}
-ol.steps li{margin-bottom:6px}
+td,th{text-align:left;padding:10px 6px;border-bottom:1px solid rgba(255,255,255,.2);vertical-align:top}
+th{color:var(--mute);font-weight:700;font-size:12px}
+code.h{font-size:11px;word-break:break-all;background:none;padding:0;color:var(--mute)}
+ol.steps li{margin-bottom:8px}
+.kinds{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:8px 0 4px}
+@media (max-width:820px){.kinds{grid-template-columns:1fr}}
+.tile-k{border-radius:26px;padding:16px}
+.tile-k .em{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-size:22px;background:rgba(255,255,255,.25);border:1px solid rgba(255,255,255,.5);margin-bottom:8px}
+.tile-k h4{margin:0 0 4px;font-size:16px}
+.tile-k p{margin:0;font-size:13.5px}
+.tile-k .home{display:inline-block;margin-top:8px;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:10px}
+.yes{background:rgba(48,209,88,.35)}.no{background:rgba(255,255,255,.18)}
+.step{display:flex;gap:14px;margin:16px 0}
+.step .n{flex:none;width:30px;height:30px;border-radius:50%;background:var(--blue);display:grid;place-items:center;font-weight:800;font-size:14px;border:1px solid rgba(150,175,255,.6);box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
+.step > div{flex:1;min-width:0}
+.step h4{margin:4px 0 4px;font-size:15.5px}
+.step p{margin:0 0 4px}
+.dl{display:inline-flex;gap:8px;align-items:center;padding:9px 16px;border-radius:20px;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.5);text-decoration:none;font-weight:600;font-size:14px;margin:4px 6px 4px 0}
 </style>
 </head>
 <body>
-<header><div class="logo">F</div><h1>FlippyOS Developer Portal</h1><span class="me" id="me"></span><button class="ghost" id="out" hidden>Sign out</button></header>
+<header><div class="logo"></div><h1>FlippyOS Developer Portal</h1><nav><a href="#" id="nav-apps" class="on">Your apps</a><a href="#guide" id="nav-guide">Creation guide</a></nav><span class="me" id="me"></span><button class="ghost small" id="out" hidden>Sign out</button></header>
 <main id="main"></main>
+<section id="guide" hidden>
+  <div class="card">
+    <h2>How to make a FlippyOS app</h2>
+    <p>FlippyOS turns Flippy's face into a phone. Your app can be on it: players find it in the phone's <b>App Store → Apps</b>, press <b>GET</b>, and use it in the game. First pick which kind you're making.</p>
+    <div class="kinds">
+      <div class="tile-k"><div class="em">🌐</div><h4>Web app</h4><p>A website shown full-screen on Flippy's phone. No game code: HTML, CSS and JavaScript only.</p><span class="home yes">Icon on the Home Screen</span></div>
+      <div class="tile-k"><div class="em">📱</div><h4>Mod with a phone app</h4><p>A BepInEx mod that <b>uses FlippyOS</b>: it adds its own app to the phone with a few lines of code (<code>FlippyOSLink.cs</code>), and that app talks to your mod.</p><span class="home yes">Icon on the Home Screen</span></div>
+      <div class="tile-k"><div class="em">🧩</div><h4>Mod</h4><p>A normal BepInEx mod (new skins, graphics, gameplay…). The App Store just installs it; it doesn't need FlippyOS.</p><span class="home no">No icon: shows INSTALLED in the store</span></div>
+    </div>
+    <p style="margin-top:12px"><b>Rule of thumb:</b> only mods that use FlippyOS get an icon on the Home Screen, and they get it by calling FlippyOSLink, shown below. A mod that doesn't call it still installs fine, it just has no phone app.</p>
+  </div>
+
+  <div class="card">
+    <h2>🌐 Make a web app</h2>
+    <div class="step"><div class="n">1</div><div><h4>Build a page that fits the phone</h4><p>The phone shows your page at <b>384 × 313</b> (CSS pixels, wider than tall). Players move a pointer with the arrow keys and click with Select, and they can type. Use big buttons and big text.</p></div></div>
+    <div class="step"><div class="n">2</div><div><h4>Put it online with https</h4><p>Any host works. <a href="https://pages.github.com/" target="_blank" rel="noopener">GitHub Pages</a> is free: your address looks like <code>https://you.github.io/my-app/</code>.</p></div></div>
+    <div class="step"><div class="n">3</div><div><h4>Create the app here</h4><p><b>Your apps → New app</b>, kind <b>Web app</b>. Fill in the id, name, tagline, icon, description and install guide, then press <b>Create app</b>.</p></div></div>
+    <div class="step"><div class="n">4</div><div><h4>Send a version</h4><p>Under <b>Versions</b>, type a version number (like <code>1.0.0</code>), paste your https address and press <b>Send for review</b>.</p></div></div>
+  </div>
+
+  <div class="card">
+    <h2>📱 Make a mod with a phone app</h2>
+    <p>Your app's screen is an HTML page that lives inside your mod's .dll. FlippyOS shows it on the phone, and the page and your C# code send each other JSON messages.</p>
+    <p><a class="dl" href="sdk/FlippyOSLink.cs" download>⬇ FlippyOSLink.cs</a><a class="dl" href="sdk/HelloFlippy.zip" download>⬇ Hello Flippy example mod (.zip)</a></p>
+
+    <div class="step"><div class="n">1</div><div><h4>Copy <code>FlippyOSLink.cs</code> into your mod</h4><p>Don't change it, and don't reference FlippyOS.dll. If a player doesn't have FlippyOS, your mod still works and just skips the phone app.</p></div></div>
+
+    <div class="step"><div class="n">2</div><div><h4>Load after FlippyOS</h4><p>Add this line above your plugin class:</p>
+<pre><code>[BepInDependency("com.flippyos.fih", BepInDependency.DependencyFlags.SoftDependency)]</code></pre></div></div>
+
+    <div class="step"><div class="n">3</div><div><h4>Make <code>app.html</code> and <code>icon.png</code>, and put them inside the .dll</h4><p>Keep everything in one HTML file (CSS, JavaScript, pictures as data: URLs), because the App Store installs a single .dll. The icon is a square PNG. In your <code>.csproj</code>:</p>
+<pre><code>&lt;ItemGroup&gt;
+  &lt;EmbeddedResource Include="app.html" LogicalName="app.html" /&gt;
+  &lt;EmbeddedResource Include="icon.png" LogicalName="icon.png" /&gt;
+&lt;/ItemGroup&gt;</code></pre></div></div>
+
+    <div class="step"><div class="n">4</div><div><h4>Add your app in <code>Load()</code></h4><p>Use the <b>same id</b> as your app here in the portal. That's how the App Store knows your mod is installed and shows <b>OPEN</b>.</p>
+<pre><code>public override void Load()
+{
+    FlippyOSLink.AddApp("my-app", "My App",
+        FlippyOSLink.Bytes("icon.png"), FlippyOSLink.Text("app.html"), OnMessage);
+}
+
+// everything the page sends arrives here; the JSON you return goes back to the page
+string OnMessage(string json)
+{
+    if (json.Contains("\"ready\"")) return "{\"hello\":\"from my mod\"}";
+    return null;
+}</code></pre></div></div>
+
+    <div class="step"><div class="n">5</div><div><h4>Talk to your mod from the page</h4>
+<pre><code>&lt;script&gt;
+  // page → mod
+  function send(msg) { if (window.flippyos) window.flippyos(JSON.stringify(msg)); }
+  // mod → page: what OnMessage returns, or FlippyOSLink.Send("my-app", json) at any time
+  window.update = function (data) { document.body.dataset.hello = data.hello; };
+  send({ a: "ready" });
+&lt;/script&gt;</code></pre></div></div>
+
+    <div class="step"><div class="n">6</div><div><h4>Build it, then publish it here</h4><p>Build your .dll (the example's <code>HelloFlippy.csproj</code> shows how). Then go to <b>Your apps → New app</b>, kind <b>Mod</b>, with the <b>same id</b>. Under Versions, upload the .dll, choose a plugin folder and press <b>Send for review</b>.</p></div></div>
+
+    <h3>Everything FlippyOSLink can do</h3>
+    <table>
+      <tr><th>Call</th><th>What it does</th></tr>
+      <tr><td><code>AddApp(id, name, icon, html, onMessage)</code></td><td>Puts your app on the Home Screen (or updates it). Returns false when FlippyOS isn't there.</td></tr>
+      <tr><td><code>Send(id, json)</code></td><td>Sends JSON to your open app's <code>window.update</code>, from any thread.</td></tr>
+      <tr><td><code>IsOpen(id)</code></td><td>True while the player has your app open.</td></tr>
+      <tr><td><code>Installed</code></td><td>True when FlippyOS is installed.</td></tr>
+      <tr><td><code>Bytes(name)</code> / <code>Text(name)</code></td><td>Reads a file you embedded in your .dll.</td></tr>
+    </table>
+    <p style="margin-top:10px"><code>onMessage</code> runs on the game's main thread, so you can use the game's code there. Keep it quick. Airplane Mode doesn't block mod apps, because they run on the PC.</p>
+  </div>
+
+  <div class="card">
+    <h2>🧩 Publish a normal mod</h2>
+    <p>Same as step 6 above, without FlippyOSLink: <b>New app</b>, kind <b>Mod</b>, then upload your .dll. Players press <b>GET</b>, restart the game, and the store shows <b>INSTALLED</b>.</p>
+  </div>
+
+  <div class="card">
+    <h2>✅ What happens after you send a version</h2>
+    <ol class="steps">
+      <li><b>Automatic virus check.</b> Every version is scanned by <b>VirusTotal</b> (about 70 antivirus engines). Web apps get their address checked, and mods get their .dll checked.</li>
+      <li><b>Nothing found:</b> it's approved automatically and shows up in everyone's App Store within a few minutes.</li>
+      <li><b>Something flagged:</b> it waits, and the store's admin checks it by hand. If it's rejected, the reason shows next to your version.</li>
+      <li><b>Updates</b> are new versions (like <code>1.0.1</code>), checked the same way. An approved file can never be swapped.</li>
+    </ol>
+    <p><b>Rules:</b> no malware, no stealing accounts or data, nothing that breaks other mods or the game's online play. Apps that break them are removed.</p>
+  </div>
+</section>
+
 <script>
 "use strict";
 const cfg = window.FLIPPYOS_STORE || {};
@@ -81,7 +204,7 @@ const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": 
 const NL = String.fromCharCode(10);
 let db, user, author, isAdmin = false;
 
-const GUIDE_TEMPLATE = ["## What you need", "- FlippyOS 0.11 or newer", "", "## Install", "1. Press **GET**", "2. Restart Flipping is Hard (mods only)",
+const GUIDE_TEMPLATE = ["## What you need", "- FlippyOS 0.13 or newer", "", "## Install", "1. Press **GET**", "2. Restart Flipping is Hard (mods only)",
   "3. Open the app from your Home Screen", "", "## How to use it", "- Arrows move, Select clicks", "- Back leaves the app"].join(NL);
 
 // the same safe Markdown subset the phone's store page shows (no HTML, no links, no images)
@@ -107,7 +230,18 @@ const errText = e => (e && (e.message || e.error_description)) || String(e);
 
 // ------------------------------------------------------------------ start
 
+function tab() {
+  const g = location.hash === "#guide";
+  document.getElementById("guide").hidden = !g;
+  $main.hidden = g;
+  document.getElementById("nav-guide").classList.toggle("on", g);
+  document.getElementById("nav-apps").classList.toggle("on", !g);
+  if (g) scrollTo(0, 0);
+}
+window.addEventListener("hashchange", tab);
+
 async function boot() {
+  tab();
   if (!cfg.url || !cfg.key || !window.supabase) {
     $main.innerHTML = `<div class="card"><h2>Not connected yet</h2><p>Put the App Store's Supabase address and public key in <code>config.js</code> next to this page.</p></div>`;
     return;
@@ -187,13 +321,10 @@ async function home() {
 }
 
 function helpCard() {
-  return `<div class="card"><h2>How publishing works</h2><ol class="steps">
-    <li><b>Make your app.</b> Two kinds: a <b>web app</b> (any https page; it opens full-screen on Flippy's phone with the pointer and keyboard) or a <b>mod</b> (a BepInEx 6 IL2CPP plugin .dll that FlippyOS installs into <code>BepInEx\\plugins\\&lt;folder&gt;</code>).</li>
-    <li><b>Create it here.</b> Pick a short id (like <code>flip-notes</code>, it never changes), a name of up to 24 letters, a one-line tagline and a square icon (PNG or JPG; it's cropped and rounded for you, see the preview).</li>
-    <li><b>Write the install guide.</b> Players read it on your app's page in the phone's App Store: what they need, how to install, how to use it. Start from the template.</li>
-    <li><b>Publish a version.</b> Web app: its https address. Mod: upload the .dll (its SHA-256 fingerprint is computed in your browser; the phone refuses any download that doesn't match).</li>
-    <li><b>Wait for review.</b> Every version is checked before players see it. Once approved it's in the App Store's <b>Apps</b> tab. Updates are new versions, reviewed the same way; players' phones pick them up.</li>
-  </ol><p>Rules: no malware, no stealing accounts or data, nothing that breaks other mods or the game's online play. Apps that do get removed.</p></div>`;
+  return `<div class="card"><h2>New here?</h2><p>Read the <a href="#guide"><b>Creation guide</b></a>: the 3 kinds of apps (web app, mod with a phone app, mod), copy-paste code, and what happens after you send a version.</p>
+    <ol class="steps"><li><b>Create</b> your app here: id, name, icon, description and install guide.</li>
+    <li><b>Send a version</b>: an https address (web app) or your .dll (mod).</li>
+    <li><b>Automatic virus check</b> by VirusTotal. If nothing is found it goes live by itself; if something is flagged, the admin checks it.</li></ol></div>`;
 }
 
 // ------------------------------------------------------------------ one app
@@ -208,6 +339,7 @@ async function editor(app) {
       <label>App id</label><input id="f-id" value="${esc(app.id)}" ${isNew ? "" : "disabled"} placeholder="flip-notes" maxlength="40">
       <div class="hint">Lowercase letters, numbers and dashes. It can't change later.</div>
       <label>Kind</label><select id="f-kind" ${isNew ? "" : "disabled"}><option value="web">Web app (an https page)</option><option value="mod">Mod (a BepInEx .dll)</option></select>
+      <div class="hint">Should your mod have an icon on the phone? It needs FlippyOSLink: see the <a href="#guide">Creation guide</a>.</div>
       <label>Name</label><input id="f-name" value="${esc(app.name)}" maxlength="24">
       <label>Tagline</label><input id="f-tag" value="${esc(app.tagline)}" maxlength="80" placeholder="What it does, in one line">
       <label>Icon</label><input id="f-icon" type="file" accept="image/png,image/jpeg"><div class="hint">Square works best. Cropped to the middle and saved as 256×256.</div>
@@ -293,6 +425,15 @@ function squareIcon(file) {
   });
 }
 
+// the VirusTotal result of a version (store/functions/scan-version)
+function scanChip(v) {
+  const t = v.scan || "";
+  const k = t.startsWith("clean") ? "clean" : t.startsWith("flagged") ? "flagged" : t === "scanning" ? "scanning" : t ? "error" : "none";
+  const label = { clean: "CLEAN " + t.slice(6), flagged: "FLAGGED " + t.slice(8), scanning: "SCANNING…", error: "SCAN FAILED", none: "NOT SCANNED" }[k];
+  const chip = `<span class="chip ${k}" title="${esc(t)}">${esc(label)}</span>`;
+  return v.scan_link ? `<a href="${esc(v.scan_link)}" target="_blank" rel="noopener" style="text-decoration:none">${chip}</a>` : chip;
+}
+
 async function sha256(buf) {
   const h = new Uint8Array(await crypto.subtle.digest("SHA-256", buf));
   return [...h].map(b => b.toString(16).padStart(2, "0")).join("");
@@ -304,8 +445,8 @@ async function versions(app) {
   if (error) { box.innerHTML = `<h2>Versions</h2><div class="err">${esc(errText(error))}</div>`; return; }
   const last = vs.find(v => v.folder);
   let h = `<h2>Versions</h2>`;
-  h += vs.length ? `<table><tr><th>Version</th><th>Status</th><th>${app.kind === "web" ? "Address" : "File"}</th><th>Notes</th></tr>` + vs.map(v =>
-    `<tr><td>${esc(v.version)}</td><td><span class="chip ${v.status}">${v.status.toUpperCase()}</span>${v.review_note ? `<div class="hint">${esc(v.review_note)}</div>` : ""}</td>
+  h += vs.length ? `<table><tr><th>Version</th><th>Status</th><th>Virus check</th><th>${app.kind === "web" ? "Address" : "File"}</th><th>Notes</th></tr>` + vs.map(v =>
+    `<tr><td>${esc(v.version)}</td><td><span class="chip ${v.status}">${v.status.toUpperCase()}</span>${v.review_note ? `<div class="hint">${esc(v.review_note)}</div>` : ""}</td><td>${scanChip(v)}</td>
      <td>${app.kind === "web" ? esc(v.web_url) : `${esc(v.folder)}\\${esc(v.file_name)}<br><code class="h">${esc(v.sha256)}</code>`}</td><td>${esc(v.notes)}</td></tr>`).join("") + `</table>`
     : `<p>No versions yet. Publish one to send your app for review.</p>`;
   h += `<h3>Publish a new version</h3><div class="row"><div style="flex:1;min-width:140px"><label>Version</label><input id="v-ver" placeholder="1.0.0"></div>`;
@@ -366,7 +507,9 @@ async function queue() {
     const what = a.kind === "web"
       ? `Open it and check it: <a href="${esc(v.web_url)}" target="_blank" rel="noopener noreferrer">${esc(v.web_url)}</a>`
       : `<a href="${esc(cfg.url)}/storage/v1/object/public/apps/${esc(v.storage_path)}" rel="noopener">Download ${esc(v.file_name)}</a> → plugins\\${esc(v.folder)}<br><code class="h">${esc(v.sha256)}</code>`;
-    return `<tr><td><b>${esc(a.name)}</b><div class="hint">${esc(v.app_id)} · by ${esc(a.authors?.name)}</div></td><td>${esc(v.version)}<div class="hint">${esc(v.notes)}</div></td><td>${what}</td>
+    return `<tr><td><b>${esc(a.name)}</b><div class="hint">${esc(v.app_id)} · by ${esc(a.authors?.name)}</div></td><td>${esc(v.version)}<div class="hint">${esc(v.notes)}</div></td><td>${what}<div style="margin-top:6px">${scanChip(v)}
+        ${a.kind === "web" ? "" : ` <a href="https://www.virustotal.com/gui/file/${esc(v.sha256)}" target="_blank" rel="noopener">VirusTotal</a>`}
+        <button class="ghost small" data-scan="${v.id}" style="margin-left:6px">Scan again</button></div></td>
       <td><div class="row"><button class="ok" data-ok="${v.id}">Approve</button><button class="bad" data-no="${v.id}">Reject</button></div>
       <label style="margin-top:6px"><input type="checkbox" data-feat="${esc(v.app_id)}" ${a.featured ? "checked" : ""} style="width:auto"> Featured</label></td></tr>`;
   }).join("") + `</table>`;
@@ -383,6 +526,12 @@ async function queue() {
     const { error } = await db.from("versions").update({ status: "rejected", review_note: note }).eq("id", b.dataset.no);
     if (error) return say(msg, errText(error));
     queue();
+  });
+  box.querySelectorAll("[data-scan]").forEach(b => b.onclick = async () => {
+    b.disabled = true; say(msg, "Scanning… it takes up to 2 minutes.", true);
+    const { error } = await db.functions.invoke("scan-version", { body: { record: { id: Number(b.dataset.scan) } } });
+    if (error) return say(msg, "The scanner isn't set up yet (store/README.md), or it failed: " + errText(error));
+    setTimeout(queue, 2500);
   });
   box.querySelectorAll("[data-feat]").forEach(c => c.onchange = async () => {
     const { error } = await db.from("apps").update({ featured: c.checked }).eq("id", c.dataset.feat);
