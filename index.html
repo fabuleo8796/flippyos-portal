@@ -793,7 +793,11 @@ async function queue() {
   box.querySelectorAll("[data-scan]").forEach(b => b.onclick = async () => {
     b.disabled = true; say(msg, "Scanning… it takes up to 2 minutes.", true);
     const { error } = await db.functions.invoke("scan-version", { body: { record: { id: Number(b.dataset.scan) } } });
-    if (error) return say(msg, "The virus scanner isn't set up yet, or it failed: " + errText(error));
+    if (error) {
+      let why = errText(error);
+      try { why = (await error.context.json()).msg || why; } catch {}
+      return say(msg, "Scan failed: " + why);
+    }
     setTimeout(queue, 2500);
   });
   box.querySelectorAll("[data-feat]").forEach(c => c.onchange = async () => {
