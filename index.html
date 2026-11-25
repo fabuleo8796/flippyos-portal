@@ -87,7 +87,7 @@ td,th{text-align:left;padding:10px 6px;border-bottom:1px solid rgba(255,255,255,
 th{color:var(--mute);font-weight:700;font-size:12px}
 code.h{font-size:11px;word-break:break-all;background:none;padding:0;color:var(--mute)}
 ol.steps li{margin-bottom:8px}
-.kinds{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:8px 0 4px}
+.kinds{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:8px 0 4px}
 @media (max-width:820px){.kinds{grid-template-columns:1fr}}
 .tile-k{border-radius:26px;padding:16px}
 .tile-k .em{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-size:22px;background:rgba(255,255,255,.25);border:1px solid rgba(255,255,255,.5);margin-bottom:8px}
@@ -109,13 +109,12 @@ ol.steps li{margin-bottom:8px}
 <section id="guide" hidden>
   <div class="card">
     <h2>How to make a FlippyOS app</h2>
-    <p>FlippyOS turns Flippy's face into a phone. Your app can be on it: players find it in the phone's <b>App Store → Apps</b>, press <b>GET</b>, and use it in the game. First pick which kind you're making.</p>
+    <p>FlippyOS turns Flippy's face into a phone. Your app can be on it: players find it in the phone's <b>App Store → Apps</b>, press <b>GET</b>, and open it from their Home Screen. Every app in the store is something you open and use on the phone. There are two kinds:</p>
     <div class="kinds">
       <div class="tile-k"><div class="em">🌐</div><h4>Web app</h4><p>A website shown full-screen on Flippy's phone. No game code: HTML, CSS and JavaScript only.</p><span class="home yes">Icon on the Home Screen</span></div>
-      <div class="tile-k"><div class="em">📱</div><h4>Mod with a phone app</h4><p>A BepInEx mod that <b>uses FlippyOS</b>: it adds its own app to the phone with a few lines of code (<code>FlippyOSLink.cs</code>), and that app talks to your mod.</p><span class="home yes">Icon on the Home Screen</span></div>
-      <div class="tile-k"><div class="em">🧩</div><h4>Mod</h4><p>A normal BepInEx mod (new skins, graphics, gameplay…). The App Store just installs it; it doesn't need FlippyOS.</p><span class="home no">No icon: shows INSTALLED in the store</span></div>
+      <div class="tile-k"><div class="em">📱</div><h4>Mod with a phone app</h4><p>A BepInEx mod with its own phone app: a few lines of code (<code>FlippyOSLink.cs</code>) add the app, and the app talks to your mod, so it can show and change things in the game.</p><span class="home yes">Icon on the Home Screen</span></div>
     </div>
-    <p style="margin-top:12px"><b>Rule of thumb:</b> only mods that use FlippyOS get an icon on the Home Screen, and they get it by calling FlippyOSLink, shown below. A mod that doesn't call it still installs fine, it just has no phone app.</p>
+    <p style="margin-top:12px"><b>Mods must call FlippyOSLink</b> (shown below): that's what puts their app on the Home Screen. A mod without a phone app doesn't belong in the store and will be rejected.</p>
   </div>
 
   <div class="card">
@@ -179,17 +178,13 @@ string OnMessage(string json)
     <p style="margin-top:10px"><code>onMessage</code> runs on the game's main thread, so you can use the game's code there. Keep it quick. Airplane Mode doesn't block mod apps, because they run on the PC.</p>
   </div>
 
-  <div class="card">
-    <h2>🧩 Publish a normal mod</h2>
-    <p>Same as step 6 above, without FlippyOSLink: <b>New app</b>, kind <b>Mod</b>, then upload your .dll. Players press <b>GET</b>, restart the game, and the store shows <b>INSTALLED</b>.</p>
-  </div>
 
   <div class="card">
     <h2>✅ What happens after you send a version</h2>
     <ol class="steps">
       <li><b>Automatic virus check.</b> Every version is scanned by <b>VirusTotal</b> (about 70 antivirus engines). Web apps get their address checked, and mods get their .dll checked.</li>
       <li><b>Nothing found:</b> it's approved automatically and shows up in everyone's App Store within a few minutes.</li>
-      <li><b>Something flagged:</b> it waits, and the store's admin checks it by hand. If it's rejected, the reason shows next to your version.</li>
+      <li><b>Something flagged</b> (or a mod without a phone app): it waits, and the store's admin checks it by hand. If it's rejected, the reason shows next to your version.</li>
       <li><b>Updates</b> are new versions (like <code>1.0.1</code>), checked the same way. An approved file can never be swapped.</li>
     </ol>
     <p><b>Rules:</b> no malware, no stealing accounts or data, nothing that breaks other mods or the game's online play. Apps that break them are removed.</p>
@@ -321,7 +316,7 @@ async function home() {
 }
 
 function helpCard() {
-  return `<div class="card"><h2>New here?</h2><p>Read the <a href="#guide"><b>Creation guide</b></a>: the 3 kinds of apps (web app, mod with a phone app, mod), copy-paste code, and what happens after you send a version.</p>
+  return `<div class="card"><h2>New here?</h2><p>Read the <a href="#guide"><b>Creation guide</b></a>: the 2 kinds of apps (web app, mod with a phone app), copy-paste code, and what happens after you send a version.</p>
     <ol class="steps"><li><b>Create</b> your app here: id, name, icon, description and install guide.</li>
     <li><b>Send a version</b>: an https address (web app) or your .dll (mod).</li>
     <li><b>Automatic virus check</b> by VirusTotal. If nothing is found it goes live by itself; if something is flagged, the admin checks it.</li></ol></div>`;
@@ -338,8 +333,8 @@ async function editor(app) {
     <div class="card"><h2>${isNew ? "New app" : esc(app.name)}</h2>
       <label>App id</label><input id="f-id" value="${esc(app.id)}" ${isNew ? "" : "disabled"} placeholder="flip-notes" maxlength="40">
       <div class="hint">Lowercase letters, numbers and dashes. It can't change later.</div>
-      <label>Kind</label><select id="f-kind" ${isNew ? "" : "disabled"}><option value="web">Web app (an https page)</option><option value="mod">Mod (a BepInEx .dll)</option></select>
-      <div class="hint">Should your mod have an icon on the phone? It needs FlippyOSLink: see the <a href="#guide">Creation guide</a>.</div>
+      <label>Kind</label><select id="f-kind" ${isNew ? "" : "disabled"}><option value="web">Web app (an https page)</option><option value="mod">Mod with a phone app (a BepInEx .dll)</option></select>
+      <div class="hint">A mod must add its phone app with FlippyOSLink, using this same id: see the <a href="#guide">Creation guide</a>.</div>
       <label>Name</label><input id="f-name" value="${esc(app.name)}" maxlength="24">
       <label>Tagline</label><input id="f-tag" value="${esc(app.tagline)}" maxlength="80" placeholder="What it does, in one line">
       <label>Icon</label><input id="f-icon" type="file" accept="image/png,image/jpeg"><div class="hint">Square works best. Cropped to the middle and saved as 256×256.</div>
