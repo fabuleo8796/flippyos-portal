@@ -132,9 +132,31 @@ code.h{font-size:11px;word-break:break-all;background:none;padding:0;color:var(-
 .agent button{flex:none}
 @media (max-width:700px){.agent{flex-direction:column;align-items:stretch}header .brand{display:none}}
 ol.plain li{margin-bottom:6px}
+
+/* ---- motion, in the spirit of React Bits (Aurora, SplitText, SpotlightCard, ClickSpark, ShinyText, Magnet); calm on purpose */
+.aurora{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.aurora i{position:absolute;width:55vmax;height:55vmax;border-radius:50%;filter:blur(70px);opacity:.55;animation:drift 26s ease-in-out infinite alternate}
+.aurora i:nth-child(1){background:#cfe0ff;left:-15vmax;top:-20vmax}
+.aurora i:nth-child(2){background:#e7dcff;right:-18vmax;top:-10vmax;animation-duration:32s;animation-delay:-8s}
+.aurora i:nth-child(3){background:#d5f5ea;left:20vmax;bottom:-30vmax;animation-duration:38s;animation-delay:-16s}
+@keyframes drift{0%{transform:translate(0,0) scale(1)}50%{transform:translate(6vmax,4vmax) scale(1.08)}100%{transform:translate(-4vmax,7vmax) scale(.96)}}
+.split .ch{display:inline-block;opacity:0;transform:translateY(.45em);animation:rise .5s cubic-bezier(.2,.7,.2,1) forwards}
+@keyframes rise{to{opacity:1;transform:none}}
+.card,.app,.choice,.tile-k{position:relative;overflow:hidden}
+.card::after,.app::after,.choice::after,.tile-k::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .25s;
+  background:radial-gradient(420px circle at var(--mx,50%) var(--my,50%),rgba(10,108,255,.07),transparent 60%)}
+.card:hover::after,.app:hover::after,.choice:hover::after,.tile-k:hover::after{opacity:1}
+.enter .card{animation:appear .45s cubic-bezier(.2,.7,.2,1) both}
+@keyframes appear{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+header .brand{background:linear-gradient(110deg,#111827 40%,#7aa7ff 50%,#111827 60%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 5s linear infinite}
+@keyframes shine{from{background-position:120% 0}to{background-position:-120% 0}}
+button.big{transition:transform .2s cubic-bezier(.2,.7,.2,1)}
+#sparks{position:fixed;inset:0;pointer-events:none;z-index:50}
+@media (prefers-reduced-motion:reduce){.aurora i,.enter .card,.split .ch,header .brand{animation:none!important}.split .ch{opacity:1;transform:none}}
 </style>
 </head>
 <body>
+<div class="aurora"><i></i><i></i><i></i></div><canvas id="sparks"></canvas>
 <header><div class="logo"></div><span class="brand">FlippyOS</span><nav><a href="#" id="nav-apps" class="on">My apps</a><a href="#guide" id="nav-guide">Guide</a></nav><span class="me" id="me"></span><button class="ghost small" id="out" hidden>Sign out</button></header>
 <main id="main"></main>
 <section id="guide" hidden>
@@ -779,6 +801,63 @@ async function queue() {
     if (error) say(msg, errText(error));
   });
 }
+
+// ------------------------------------------------------------------ motion (React Bits-style, plain JS)
+(() => {
+  const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // SplitText: page titles rise in letter by letter
+  let lastTitle = null;
+  const split = h => {
+    if (calm || h.dataset.split) return;
+    h.dataset.split = 1;
+    const text = h.textContent; h.textContent = ""; h.classList.add("split");
+    [...text].forEach((c, i) => {
+      const sp = document.createElement("span"); sp.className = "ch"; sp.textContent = c === " " ? "\u00a0" : c;
+      sp.style.animationDelay = (i * 0.022) + "s"; h.appendChild(sp);
+    });
+  };
+  // only a new page animates (the publish steps redraw a lot; the same page shouldn't keep flashing)
+  new MutationObserver(() => {
+    const h = $main.querySelector("h1:not([data-split])");
+    if (!h) return;
+    const title = h.textContent;
+    if (title === lastTitle) { h.dataset.split = 1; return; }
+    lastTitle = title;
+    split(h);
+    $main.classList.remove("enter"); void $main.offsetWidth; $main.classList.add("enter");
+  }).observe($main, { childList: true, subtree: true });
+  // SpotlightCard: a soft light that follows the mouse
+  document.addEventListener("pointermove", e => {
+    const el = e.target.closest && e.target.closest(".card,.app,.choice,.tile-k");
+    if (el) { const r = el.getBoundingClientRect(); el.style.setProperty("--mx", (e.clientX - r.left) + "px"); el.style.setProperty("--my", (e.clientY - r.top) + "px"); }
+    // Magnet: big buttons lean toward the pointer
+    if (!calm) document.querySelectorAll("button.big").forEach(b => {
+      const r = b.getBoundingClientRect(), dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
+      const near = Math.hypot(dx, dy) < 120;
+      b.style.transform = near ? `translate(${dx * 0.12}px,${dy * 0.18}px)` : "";
+    });
+  }, { passive: true });
+  // ClickSpark: a few short sparks where you click
+  const cv = document.getElementById("sparks"), cx = cv.getContext("2d");
+  let sparks = [], running = false;
+  const size = () => { cv.width = innerWidth * devicePixelRatio; cv.height = innerHeight * devicePixelRatio; cx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0); };
+  size(); addEventListener("resize", size);
+  const frame = t => {
+    cx.clearRect(0, 0, innerWidth, innerHeight);
+    sparks = sparks.filter(s => t - s.t0 < 380);
+    for (const s of sparks) {
+      const k = (t - s.t0) / 380, d = 6 + 18 * k, len = 9 * (1 - k);
+      cx.strokeStyle = `rgba(10,108,255,${1 - k})`; cx.lineWidth = 2; cx.lineCap = "round";
+      cx.beginPath(); cx.moveTo(s.x + Math.cos(s.a) * d, s.y + Math.sin(s.a) * d); cx.lineTo(s.x + Math.cos(s.a) * (d + len), s.y + Math.sin(s.a) * (d + len)); cx.stroke();
+    }
+    if (sparks.length) requestAnimationFrame(frame); else running = false;
+  };
+  if (!calm) document.addEventListener("click", e => {
+    const t0 = performance.now();
+    for (let i = 0; i < 8; i++) sparks.push({ x: e.clientX, y: e.clientY, a: i * Math.PI / 4, t0 });
+    if (!running) { running = true; requestAnimationFrame(frame); }
+  });
+})();
 
 boot();
 </script>
