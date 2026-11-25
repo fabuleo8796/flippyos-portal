@@ -146,7 +146,7 @@ function signIn() {
   document.getElementById("up").onclick = async () => {
     const c = creds();
     if (c.password.length < 8) return say(msg, "Use a password of at least 8 characters.");
-    const { data, error } = await db.auth.signUp(c);
+    const { data, error } = await db.auth.signUp({ ...c, options: { emailRedirectTo: location.origin + location.pathname } });
     if (error) return say(msg, errText(error));
     if (!data.session) say(msg, "Check your email and click the link to finish signing up, then sign in here.", true);
   };
