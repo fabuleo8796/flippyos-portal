@@ -10,6 +10,10 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.50.0/dist/umd/supabase.js"></script>
 <style>
 /* liquid glass (iOS 26): frosted panels with bright edges over a vivid gradient */
+@font-face{font-family:Bungee;src:url(fonts/Bungee-Regular.ttf) format("truetype");font-display:swap}
+header h1,h2,h3,.tile-k h4,.step h4,nav a,button,.dl,.chip,.step .n,.storerow .get{font-family:Bungee,Inter,sans-serif;font-weight:400;letter-spacing:.01em}
+h2{font-size:21px}h3{font-size:15px}.tile-k h4{font-size:15px}.step h4{font-size:14px}
+button{font-size:13px}nav a{font-size:13px}.chip{font-size:10.5px}
 :root{--glass:rgba(255,255,255,.16);--glass2:rgba(255,255,255,.26);--edge:rgba(255,255,255,.42);--text:#fff;--mute:rgba(255,255,255,.74);
   --blue:#0b45e0;--ok:#30d158;--bad:#ff453a;--warn:#ffd60a;--shadow:0 12px 36px rgba(40,10,90,.25)}
 *{box-sizing:border-box}
@@ -62,11 +66,11 @@ button:disabled{opacity:.5;cursor:default}
 .chip.none,.chip.scanning,.chip.error{background:rgba(255,255,255,.18)}
 .err{color:#ffd1cc;font-size:13px;margin-top:10px;white-space:pre-wrap}
 .okmsg{color:#c9ffd8;font-size:13px;margin-top:10px}
-.phone{border-radius:26px;padding:18px;background:linear-gradient(160deg,#1e6fd9,#5b2a86 70%);display:grid;grid-template-columns:repeat(4,1fr);gap:14px 6px;justify-items:center;border:1px solid var(--edge)}
-.tile{display:flex;flex-direction:column;align-items:center;gap:5px;width:64px}
-.tile .i{width:56px;height:56px;border-radius:13px;background:#fff center/cover;box-shadow:0 4px 10px rgba(0,0,0,.25)}
+.phone{border-radius:26px;padding:16px 12px 12px;background:linear-gradient(160deg,#1e6fd9,#5b2a86 70%);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 8px;justify-items:center;border:1px solid var(--edge)}
+.tile{display:flex;flex-direction:column;align-items:center;gap:5px;width:100%;min-width:0}
+.tile .i{width:100%;max-width:56px;aspect-ratio:1;height:auto;border-radius:23%;background:#fff center/cover;box-shadow:0 4px 10px rgba(0,0,0,.25)}
 .tile .i.ghost{background:rgba(255,255,255,.25)}
-.tile span{font-size:11px;color:#fff;text-shadow:0 1px 4px rgba(0,0,40,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:64px}
+.tile span{font-size:11px;color:#fff;text-shadow:0 1px 4px rgba(0,0,40,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .storerow{margin-top:12px;border-radius:20px;padding:10px;display:flex;gap:10px;align-items:center;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.4)}
 .storerow .i{width:44px;height:44px;border-radius:11px;background:rgba(255,255,255,.3) center/cover;flex:none}
 .storerow b{display:block;font-size:14px}
@@ -100,6 +104,11 @@ ol.steps li{margin-bottom:8px}
 .step > div{flex:1;min-width:0}
 .step h4{margin:4px 0 4px;font-size:15.5px}
 .step p{margin:0 0 4px}
+.agent{display:flex;gap:16px;align-items:center;margin:14px 0 6px;padding:16px 18px;border-radius:24px;background:linear-gradient(135deg,rgba(11,69,224,.45),rgba(200,81,201,.35));border:1px solid rgba(255,255,255,.5);box-shadow:inset 0 1px 0 rgba(255,255,255,.55)}
+.agent h4{margin:0 0 4px;font:400 15px Bungee,Inter,sans-serif}
+.agent p{margin:0;font-size:13.5px;color:#fff}
+.agent button{flex:none}
+@media (max-width:820px){.agent{flex-direction:column;align-items:stretch}}
 .dl{display:inline-flex;gap:8px;align-items:center;padding:9px 16px;border-radius:20px;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.5);text-decoration:none;font-weight:600;font-size:14px;margin:4px 6px 4px 0}
 </style>
 </head>
@@ -129,6 +138,93 @@ ol.steps li{margin-bottom:8px}
     <h2>📱 Make a mod with a phone app</h2>
     <p>Your app's screen is an HTML page that lives inside your mod's .dll. FlippyOS shows it on the phone, and the page and your C# code send each other JSON messages.</p>
     <p><a class="dl" href="sdk/FlippyOSLink.cs" download>⬇ FlippyOSLink.cs</a><a class="dl" href="sdk/HelloFlippy.zip" download>⬇ Hello Flippy example mod (.zip)</a></p>
+    <div class="agent">
+      <div><h4>🤖 Let your AI agent do it</h4><p>Copy this prompt into Claude Code, Codex, Cursor or another coding agent, and add your app idea at the top. It sets up the project, builds and tests the mod, and writes everything you need to paste here to publish.</p></div>
+      <button id="copy-prompt">📋 Copy prompt for your agent</button>
+    </div>
+    <textarea id="agent-prompt" hidden>Help me make and publish a FlippyOS app: a BepInEx mod for the game "Flipping is Hard" that adds its own app to Flippy's phone (FlippyOS).
+
+MY APP IDEA: &lt;describe your app here: what it shows, what the buttons do, what it changes in the game&gt;
+
+Before you start, ask me once for anything you're missing: the idea (if it's still the placeholder above), the app id I want (2-40 lowercase letters, numbers and dashes, like "flip-notes"), the app name (up to 24 letters), and where the game is installed (usually C:\Program Files (x86)\Steam\steamapps\common\Flipping is Hard).
+
+== What FlippyOS is ==
+- FlippyOS is a mod (BepInEx 6 IL2CPP plugin, GUID "com.flippyos.fih") that turns Flippy's face screen into a phone.
+- A mod adds an app to the phone's Home Screen by calling FlippyOSLink.AddApp(id, name, iconPng, html, onMessage).
+- The app's screen is one HTML page. FlippyOS shows it full-screen on the phone in a Chrome tab: 384 x 313 CSS pixels, wider than tall. Players move a pointer with the arrow keys, click with Select, and can type.
+- page -&gt; mod: the page calls window.flippyos(JSON.stringify(msg)). The message arrives in onMessage(string json) in C#, on the game's main thread.
+- mod -&gt; page: the JSON string that onMessage returns (or FlippyOSLink.Send(id, json) at any time) arrives in the page as window.update(data).
+- Full guide: https://fabuleo8796.github.io/flippyos-portal/#guide
+
+== Set it up ==
+1. Download and unzip the starter kit: https://fabuleo8796.github.io/flippyos-portal/sdk/HelloFlippy.zip
+   It has:
+   - FlippyOSLink.cs, the link to FlippyOS;
+   - HelloFlippy/Plugin.cs, a counter example;
+   - HelloFlippy/app.html, the example's phone screen;
+   - icon.png;
+   - HelloFlippy.csproj.
+   Read all of it first.
+2. Make my project from it:
+   - Rename the project, the assembly and the class.
+   - Give BepInPlugin a new unique GUID (like "com.&lt;myname&gt;.&lt;appid&gt;").
+   - Keep the line [BepInDependency("com.flippyos.fih", BepInDependency.DependencyFlags.SoftDependency)].
+   - Set the app id constant to my id. The same id must be used everywhere: in AddApp and in the developer portal.
+3. Copy FlippyOSLink.cs into the project unchanged. Do NOT reference FlippyOS.dll: FlippyOSLink finds FlippyOS by itself, and the mod must still load without it.
+
+== Build the app ==
+4. app.html is my app's screen:
+   - Keep everything in this ONE file: CSS, JavaScript, and pictures as data: URLs. The App Store installs a single .dll, so there are no other files.
+   - Design it for 384 x 313 with big buttons and big text.
+   - Make it look like FlippyOS: iOS 26 "liquid glass", meaning frosted see-through panels (backdrop-filter blur, white 15-25% fill, a thin bright border) over a bright blue-purple-pink gradient, with rounded pill buttons.
+5. Embed app.html and icon.png in the .dll as EmbeddedResource items, with LogicalName equal to the file name (see the csproj). Read them with FlippyOSLink.Text("app.html") and FlippyOSLink.Bytes("icon.png").
+6. Make icon.png a square 256 x 256 PNG that fits my app. It gets rounded for you.
+7. In Load(): call FlippyOSLink.AddApp(...) and log whether it worked.
+8. Write onMessage:
+   - Parse the JSON with System.Text.Json.
+   - Handle a "ready" message (the page just opened) by returning the current state.
+   - Return JSON or null.
+   - Keep it quick, and catch exceptions.
+   - Game objects are IL2CPP: use the BepInEx interop types and don't hold on to destroyed objects.
+
+== Build and test ==
+9. Build:
+   dotnet build -c Release -p:GamePath="&lt;game folder&gt;"
+   It needs the .NET 6+ SDK, plus BepInEx 6 IL2CPP installed in the game and started once so BepInEx\interop exists. Fix every error.
+10. Test it:
+    - Copy the .dll to &lt;game folder&gt;\BepInEx\plugins\&lt;MyAppFolder&gt;\ and start the game. FlippyOS must be installed.
+    - In BepInEx\LogOutput.log, look for "Mod app '&lt;id&gt;' ... is on the Home Screen".
+    - Open Flippy's phone, find my app on the Home Screen, and try every button.
+11. Give me the path of the finished .dll.
+
+== Get it ready to publish (I do the website part myself) ==
+12. Write these, ready to paste:
+    - App id
+    - Name (up to 24 letters)
+    - Tagline (one line, up to 80 characters)
+    - Description (what it does, a few sentences)
+    - Install and use guide. Only this simple format works: "## heading", "1. step", "- point", "**bold**", "`key`". No links, no HTML. Use these sections:
+      ## What you need
+      - FlippyOS 0.13 or newer
+      ## Install
+      1. Press **GET**
+      2. Restart Flipping is Hard
+      3. Open **&lt;name&gt;** from your Home Screen
+      ## How to use it
+      Then the controls.
+    - Version (1.0.0)
+    - Plugin folder name (letters, numbers, dots, dashes, spaces; it never changes later)
+13. Then tell me these steps, and nothing else about the website:
+    - Open https://fabuleo8796.github.io/flippyos-portal/ and sign in (or create an account and pick an author name).
+    - Your apps → New app → kind "Mod with a phone app" → paste the id, name, tagline, description and guide, pick icon.png → Create app.
+    - Under Versions: version 1.0.0, upload the .dll, type the plugin folder → Send for review.
+    - VirusTotal checks it automatically. If it's clean it goes live by itself; otherwise the admin checks it.
+    Never ask for my password and never sign in for me.
+
+== Rules (the store rejects anything that breaks them) ==
+- No malware, no stealing accounts or data, nothing that breaks other mods or the game's online play.
+- The mod must add a phone app with FlippyOSLink, using the same id as in the store.
+- Updates are new versions (1.0.1 and so on) with the same id and plugin folder.</textarea>
 
     <div class="step"><div class="n">1</div><div><h4>Copy <code>FlippyOSLink.cs</code> into your mod</h4><p>Don't change it, and don't reference FlippyOS.dll. If a player doesn't have FlippyOS, your mod still works and just skips the phone app.</p></div></div>
 
@@ -234,6 +330,13 @@ function tab() {
   if (g) scrollTo(0, 0);
 }
 window.addEventListener("hashchange", tab);
+document.getElementById("copy-prompt").onclick = async e => {
+  const text = document.getElementById("agent-prompt").value, b = e.currentTarget;
+  try { await navigator.clipboard.writeText(text); }
+  catch { const t = document.getElementById("agent-prompt"); t.hidden = false; t.select(); document.execCommand("copy"); t.hidden = true; }
+  b.textContent = "✅ Copied! Paste it to your agent";
+  setTimeout(() => b.textContent = "📋 Copy prompt for your agent", 2500);
+};
 
 async function boot() {
   tab();
@@ -355,7 +458,7 @@ async function editor(app) {
   $("back").onclick = home;
   const preview = () => {
     const name = $("f-name").value || "App name", ic = iconPreview ? `background-image:url('${iconPreview}')` : "";
-    const tiles = ["#10a37f", "#ff9500", "#5856d6"].map(c => `<div class="tile"><div class="i" style="background:${c}"></div><span>&nbsp;</span></div>`).join("");
+    const tiles = [["#10a37f", "ChatGPT"], ["#ff9500", "Photos"], ["#8e8e93", "Settings"]].map(([c, n]) => `<div class="tile"><div class="i" style="background:${c}"></div><span>${n}</span></div>`).join("");
     $("pv-home").innerHTML = tiles + `<div class="tile"><div class="i${ic ? "" : " ghost"}" style="${ic}"></div><span>${esc(name)}</span></div>`;
     $("pv-row").innerHTML = `<div class="i" style="${ic}"></div><div style="min-width:0"><b>${esc(name)}</b><small>${esc($("f-tag").value || author.name)}</small></div><span class="get">GET</span>`;
     $("pv-guide").innerHTML = md($("f-guide").value);
